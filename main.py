@@ -54,33 +54,47 @@ def main():
         types.Content(role="user", parts=[types.Part(text=user_prompt)]),
     ]
 
+    if verbose:
+        print(f"User prompt: {user_prompt}")
+
     client = genai.Client(api_key=api_key)
 
-    response = client.models.generate_content(
-        model="gemini-2.0-flash-001",
-        contents=messages,
-        config=types.GenerateContentConfig(
-            tools=[available_functions], system_instruction=system_prompt
-        ),
-    )
-
-    if response.function_calls:
-        for function_call_part in response.function_calls:
-            function_call_result = call_function(function_call_part, verbose=verbose)
-            try:
-                call_result = function_call_result.parts[0].function_response.response
-                if verbose:
-                    print(f"-> {call_result}")
-            except (AttributeError, IndexError):
-                raise RuntimeError("Function call did not return a response")
-    else:
-        print(response.text)
-
-    if verbose:
-        print(f"""User prompt: {user_prompt}
-Prompt tokens: {response.usage_metadata.prompt_token_count}
+    for _ in range(20):
+        response = client.models.generate_content(
+            model="gemini-2.0-flash-001",
+            contents=messages,
+            config=types.GenerateContentConfig(
+                tools=[available_functions], system_instruction=system_prompt
+            ),
+        )
+        if verbose:
+            print(f"""Prompt tokens: {response.usage_metadata.prompt_token_count}
 Response tokens: {response.usage_metadata.candidates_token_count}
 """)
+
+        messages += [c.content for c in response.candidates if c.content is not None]
+
+        if response.function_calls:
+            for function_call_part in response.function_calls:
+                function_call_result = call_function(
+                    function_call_part, verbose=verbose
+                )
+                try:
+                    call_result = function_call_result.parts[
+                        0
+                    ].function_response.response
+                    if verbose:
+                        print(f"-> {call_result}")
+                    messages += [
+                        types.Content(role="tool", parts=[*function_call_result.parts]),
+                    ]
+                except (AttributeError, IndexError):
+                    raise RuntimeError("Function call did not return a response")
+        else:
+            print(response.text)
+            break
+    else:
+        print("Autocoder run out of steps limit.")
 
 
 if __name__ == "__main__":
