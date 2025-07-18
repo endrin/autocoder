@@ -46,11 +46,32 @@
 
 ## `write_file` test
 
-from functions.write_file import write_file
+# from functions.write_file import write_file
+#
+#
+# def print_results_for(filename, content, base="calculator"):
+#     res = write_file(base, filename, content)
+#
+#     print(
+#         f"Result for `{filename}` file in `{base}` directory:",
+#         res,
+#         sep="\n",
+#         end="\n\n",
+#     )
+#
+#
+# print_results_for("lorem.txt", "wait, this isn't lorem ipsum")
+# print_results_for("pkg/morelorem.txt", "lorem ipsum dolor sit amet")
+# print_results_for("/tmp/temp.txt", "this should not be allowed")
 
 
-def print_results_for(filename, content, base="calculator"):
-    res = write_file(base, filename, content)
+## `run_python_file` test
+
+from functions.run_python import run_python_file
+
+
+def print_results_for(filename, args=[], base="calculator"):
+    res = run_python_file(base, filename, args)
 
     print(
         f"Result for `{filename}` file in `{base}` directory:",
@@ -60,6 +81,8 @@ def print_results_for(filename, content, base="calculator"):
     )
 
 
-print_results_for("lorem.txt", "wait, this isn't lorem ipsum")
-print_results_for("pkg/morelorem.txt", "lorem ipsum dolor sit amet")
-print_results_for("/tmp/temp.txt", "this should not be allowed")
+print_results_for("main.py")
+print_results_for("main.py", ["3 + 5"])
+print_results_for("tests.py")
+print_results_for("../main.py")
+print_results_for("nonexistent.py")
