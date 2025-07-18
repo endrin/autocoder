@@ -5,7 +5,8 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-from functions.schemas import (
+from functions.api import (
+    call_function,
     schema_get_files_info,
     schema_get_file_content,
     schema_write_file,
@@ -65,9 +66,13 @@ def main():
 
     if response.function_calls:
         for function_call_part in response.function_calls:
-            print(
-                f"Calling function: {function_call_part.name}({function_call_part.args})"
-            )
+            function_call_result = call_function(function_call_part, verbose=verbose)
+            try:
+                call_result = function_call_result.parts[0].function_response.response
+                if verbose:
+                    print(f"-> {call_result}")
+            except (AttributeError, IndexError):
+                raise RuntimeError("Function call did not return a response")
     else:
         print(response.text)
 

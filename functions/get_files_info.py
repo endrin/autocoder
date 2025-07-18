@@ -5,6 +5,9 @@ from functions._private import _resolve_path_within_workdir
 
 def get_files_info(working_directory, directory=None):
     try:
+        if not directory:
+            directory = "."
+
         abs_tgtdir = _resolve_path_within_workdir(working_directory, directory)
 
         if not os.path.isdir(abs_tgtdir):
