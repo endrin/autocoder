@@ -94,7 +94,7 @@ Response tokens: {response.usage_metadata.candidates_token_count}
             print(response.text)
             break
     else:
-        print("Autocoder run out of steps limit.")
+        print("Autocoder ran out of steps limit.")
 
 
 if __name__ == "__main__":
